@@ -5,7 +5,7 @@
     <section class="about-hero-section">
         <div class="container">
             <div class="about-hero-content">
-                <h1 class="about-hero-title">About SkyBooking</h1>
+                <h1 class="about-hero-title">About AMD Global</h1>
                 <p class="about-hero-subtitle">Connecting travelers to their dream destinations with seamless booking experiences and unmatched customer service since 2018.</p>
             </div>
         </div>
@@ -17,7 +17,7 @@
             <div class="story-content">
                 <div class="story-text">
                     <h2>Our Story</h2>
-                    <p class="story-intro">Founded in 2018 by a team of passionate travelers, SkyBooking was born from a simple yet powerful vision: to make travel accessible, affordable, and hassle-free for everyone.</p>
+                    <p class="story-intro">Founded in 2018 by a team of passionate travelers, AMD Global was born from a simple yet powerful vision: to make travel accessible, affordable, and hassle-free for everyone.</p>
                     
                     <p>What started as a small startup in Karachi has grown into one of Pakistan's leading online travel platforms. Our founders, having experienced the frustrations of complicated booking processes and poor customer service, set out to create something different – a platform that puts travelers first.</p>
                     

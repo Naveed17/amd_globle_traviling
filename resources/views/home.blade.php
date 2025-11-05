@@ -134,7 +134,7 @@
                 <div class="card-content">
                     <div class="destination-title">Melbourne</div>
                     <div class="destination-description">An amazing journey</div>
-                    <div class="destination-price">$700</div>
+                    <div class="destination-price">€700</div>
                     <button class="btn-book">Book Flight</button>
                 </div>
             </div>
@@ -147,7 +147,7 @@
                 <div class="card-content">
                     <div class="destination-title">Paris</div>
                     <div class="destination-description">A Paris Adventure</div>
-                    <div class="destination-price">$600</div>
+                    <div class="destination-price">€600</div>
                     <button class="btn-book">Book Flight</button>
                 </div>
             </div>
@@ -160,7 +160,7 @@
                 <div class="card-content">
                     <div class="destination-title">London</div>
                     <div class="destination-description">London eye adventure</div>
-                    <div class="destination-price">$350</div>
+                    <div class="destination-price">€350</div>
                     <button class="btn-book">Book Flight</button>
                 </div>
             </div>
@@ -173,7 +173,7 @@
                 <div class="card-content">
                     <div class="destination-title">Columbia</div>
                     <div class="destination-description">Amazing streets</div>
-                    <div class="destination-price">$700</div>
+                    <div class="destination-price">€700</div>
                     <button class="btn-book">Book Flight</button>
                 </div>
             </div>

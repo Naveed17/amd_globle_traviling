@@ -2,66 +2,12 @@
 @section('content')
 
 
-<style>
-    /* Styles for content images */
-.article-body img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 1.5rem auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* For full-width images */
-.article-body img.full-width {
-    width: 100%;
-}
-
-/* For medium-sized images */
-.article-body img.medium {
-    max-width: 75%;
-}
-
-/* For small images */
-.article-body img.small {
-    max-width: 50%;
-}
-
-/* For images with captions */
-.article-body figure {
-    margin: 1.5rem auto;
-    text-align: center;
-}
-
-.article-body figure img {
-    margin-bottom: 0.5rem;
-}
-
-.article-body figcaption {
-    font-size: 0.9rem;
-    color: #666;
-    font-style: italic;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .article-body img.medium {
-        max-width: 100%;
-    }
-    
-    .article-body img.small {
-        max-width: 75%;
-    }
-}
-</style>
-
     <!-- Hero Section -->
     <section class="blog-detail-hero">
         <div class="blog-hero-content">
             <div class="blog-category-hero">{{ $blog->category->name }}</div>
             <h1 class="blog-detail-title">{{ $blog->title }}</h1>
-            <div class="blog-meta-detail">
+            <!-- <div class="blog-meta-detail">
                 <div class="meta-item">
                     <i class="bi bi-calendar3"></i>
                     <span>{{ $blog->created_at->format('F j, Y') }}</span>
@@ -78,8 +24,8 @@
                     <i class="bi bi-eye"></i>
                     <span>{{ number_format($blog->views) }} views</span>
                 </div>
-            </div>
-            <div class="share-buttons">
+            </div> -->
+            <!-- <div class="share-buttons">
                 <button class="share-btn" onclick="sharePost('facebook')">
                     <i class="bi bi-facebook"></i>
                 </button>
@@ -92,7 +38,7 @@
                 <button class="share-btn" onclick="sharePost('whatsapp')">
                     <i class="bi bi-whatsapp"></i>
                 </button>
-            </div>
+            </div> -->
         </div>
     </section>
 
@@ -126,65 +72,6 @@
             </div>
         </article>
 
-        <!-- Sidebar -->
-        <aside class="blog-sidebar">
-            <!-- Author Bio -->
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">
-                    <i class="bi bi-person"></i>
-                    About the Author
-                </h3>
-                <div class="author-info">
-                    <div class="author-avatar">
-                        {{ substr($blog->author->name, 0, 1) }}
-                    </div>
-                    <div class="author-details">
-                        <h4>{{ $blog->author->name }}</h4>
-                        <p>{{ $blog->author->bio ?? 'Travel blogger sharing amazing destinations and tips.' }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table of Contents -->
-            @if($blog->toc_enabled)
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">
-                    <i class="bi bi-list-ul"></i>
-                    Table of Contents
-                </h3>
-                <ul class="toc-list">
-                    @foreach($blog->table_of_contents as $item)
-                        <li><a href="#{{ Str::slug($item['heading']) }}">{{ $item['heading'] }}</a></li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            <!-- Related Posts -->
-            @if($relatedPosts->count())
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">
-                    <i class="bi bi-bookmark"></i>
-                    Related Posts
-                </h3>
-                @foreach($relatedPosts as $related)
-                <div class="related-post">
-                    <div class="related-image">
-                        @if($related->thumbnail)
-                            <img src="{{ asset('storage/' . $related->thumbnail) }}" alt="{{ $related->title }}">
-                        @else
-                            <i class="bi bi-{{ $related->icon ?? 'journal-text' }}"></i>
-                        @endif
-                    </div>
-                    <div class="related-content">
-                        <h5><a href="{{ route('blog.detail', $related->slug) }}">{{ $related->title }}</a></h5>
-                        <div class="related-date">{{ $related->created_at->format('F j, Y') }}</div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            @endif
-        </aside>
 
       
 

@@ -302,7 +302,7 @@
                                             <div class="current-image-section mb-3">
                                                 <label class="form-label">Current Featured Image</label>
                                                 <div class="text-center">
-                                                    <img src="{{ Storage::url($post->featured_image) }}" 
+                                                    <img src="{{ url('storage/app/public/'.$post->featured_image) }}" 
                                                          class="current-featured-image img-fluid" 
                                                          alt="Current featured image">
                                                 </div>

@@ -24,8 +24,8 @@
                 <article class="blog-card" data-category="{{ $blog->category->slug }}" onclick="openBlogDetail('{{ $blog->slug }}')">
                     <div class="blog-image">
                         <div class="blog-category">{{ $blog->category->name }}</div>
-                        @if($blog->image)
-                            <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->title }}">
+                        @if($blog->featured_image)
+                            <img src="{{ url('storage/app/public/'.$blog->featured_image) }}" alt="{{ $blog->title }}">
                         @else
                             <i class="bi bi-{{ $blog->icon ?? 'journal-text' }}"></i>
                         @endif
