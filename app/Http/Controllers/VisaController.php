@@ -5,6 +5,9 @@ use App\Models\VisaRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Resend\Laravel\Facades\Resend;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VisaRequestMail;
+use Illuminate\Support\Arr;
 
 class VisaController extends Controller
 {
@@ -136,7 +139,7 @@ class VisaController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed: ' . implode(', ', array_flatten($e->errors()))
+                    'message' => 'Validation failed: ' . implode(', ', Arr::flatten($e->errors()))
                 ], 422);
             }
             
@@ -161,8 +164,225 @@ class VisaController extends Controller
         }
     }
 
+private function sendVisaEmail($visaRequest, $visaType)
+{
+    try {
+        // Send email using Laravel Mail
+        Mail::send([], [], function ($message) use ($visaRequest, $visaType) {
+            $visaTypeText = $visaType === 'uae' ? 'UAE VISA' : 'OTHER VISA';
+            
+            $message->to('amdglobal62@gmail.com')
+                    ->from('team@amdglobal.de', 'AMD Global')
+                    ->subject('New ' . $visaTypeText . ' Application - ' . $visaRequest->first_name . ' ' . $visaRequest->surname)
+                    ->html($this->getVisaEmailHtml($visaRequest, $visaType));
+        });
 
-    private function sendVisaEmail($visaRequest, $visaType)
+        \Log::info('Visa email sent successfully');
+    } catch (\Exception $e) {
+        \Log::error('Email sending failed: ' . $e->getMessage());
+    }
+}
+
+private function getVisaEmailHtml($visaRequest, $visaType)
+{
+    $visaTypeText = $visaType === 'uae' ? 'UAE VISA' : 'OTHER VISA';
+    
+    return '
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New ' . $visaTypeText . ' Application</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, \'Helvetica Neue\', Arial, sans-serif; background: #f8f9fa; line-height: 1.6;">
+        
+        <!-- Main Container -->
+        <div style="max-width: 800px; margin: 0 auto; background: white; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+            
+            <!-- Header Section -->
+            <div style="background: linear-gradient(135deg, #0052FE 0%, #0041CC 50%, #003399 100%); color: white; padding: 40px 30px; text-align: center; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;"></div>
+                <div style="position: absolute; bottom: -30px; left: -30px; width: 60px; height: 60px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;"></div>
+                
+                <div style="position: relative; z-index: 2;">
+                    <div style="background: rgba(255, 255, 255, 0.15); display: inline-block; padding: 15px; border-radius: 50%; margin-bottom: 20px;">
+                        <div style="font-size: 40px;">✈️</div>
+                    </div>
+                    <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">New ' . $visaTypeText . ' Application</h1>
+                    <p style="margin: 15px 0 0 0; font-size: 16px; opacity: 0.9;">Submitted on ' . now()->format('F j, Y \a\t g:i A') . '</p>
+                    
+                    <!-- Status Badge -->
+                    <div style="background: #28a745; color: white; display: inline-block; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-top: 15px;">
+                        📋 NEW APPLICATION
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content Section -->
+            <div style="padding: 40px 30px;">
+                
+                <!-- Passenger Details Card -->
+                <div style="background: #f8f9ff; border: 2px solid #e3f2fd; border-radius: 15px; padding: 25px; margin-bottom: 30px; position: relative;">
+                    <div style="position: absolute; top: -10px; left: 25px; background: #0052FE; color: white; padding: 5px 15px; border-radius: 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        👤 Passenger Information
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr>
+                            <td style="padding: 12px 0; font-weight: 600; width: 180px; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 8px; display: inline-block;">👤 Full Name</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 16px; font-weight: 600; color: #333;">
+                                ' . $visaRequest->first_name . ' ' . ($visaRequest->middle_name ?? '') . ' ' . $visaRequest->surname . '
+                            </td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 8px; display: inline-block;">👨 Father\'s Name</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #666;">' . $visaRequest->father_name . '</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 8px; display: inline-block;">👩 Mother\'s Name</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #666;">' . $visaRequest->mother_name . '</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 8px; display: inline-block;">🌍 Nationality</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #666;">' . $visaRequest->nationality . '</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 8px; display: inline-block;">📘 Passport No</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #666; font-family: monospace; font-weight: 600;">' . $visaRequest->passport_no . '</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 8px; display: inline-block;">⚧ Gender</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #666;">' . ucfirst($visaRequest->gender) . '</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #e3f2fd; padding: 4px 8px; border-radius: 8px; display: inline-block;">💼 Occupation</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #666;">' . $visaRequest->occupation . '</td>
+                        </tr>
+                    </table>
+                </div>' . 
+                ($visaType === 'uae' ? '
+                <!-- Guarantor Details Card -->
+                <div style="background: #f0fff4; border: 2px solid #d4edda; border-radius: 15px; padding: 25px; margin-bottom: 30px; position: relative;">
+                    <div style="position: absolute; top: -10px; left: 25px; background: #28a745; color: white; padding: 5px 15px; border-radius: 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        🛡️ Guarantor Information
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr>
+                            <td style="padding: 12px 0; font-weight: 600; width: 180px; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #d4edda; padding: 4px 8px; border-radius: 8px; display: inline-block;">👤 Name</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 16px; font-weight: 600; color: #333;">' . $visaRequest->guarantor_name . '</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #d4edda; padding: 4px 8px; border-radius: 8px; display: inline-block;">📧 Email</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #007bff; text-decoration: underline;">
+                                <a href="mailto:' . $visaRequest->guarantor_email . '" style="color: #007bff; text-decoration: none;">' . $visaRequest->guarantor_email . '</a>
+                            </td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #d4edda; padding: 4px 8px; border-radius: 8px; display: inline-block;">📱 Mobile</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #28a745; font-weight: 600;">
+                                <a href="tel:' . $visaRequest->guarantor_mobile . '" style="color: #28a745; text-decoration: none;">' . $visaRequest->guarantor_mobile . '</a>
+                            </td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #d4edda; padding: 4px 8px; border-radius: 8px; display: inline-block;">🆔 Emirates ID</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #666; font-family: monospace; font-weight: 600;">' . $visaRequest->guarantor_emirates_id . '</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; color: #555; font-size: 14px; vertical-align: top;">
+                                <span style="background: #d4edda; padding: 4px 8px; border-radius: 8px; display: inline-block;">🏢 Company</span>
+                            </td>
+                            <td style="padding: 12px 0; font-size: 15px; color: #666;">' . $visaRequest->employer_name . '</td>
+                        </tr>
+                    </table>
+                </div>' : '') . '
+                
+                <!-- Action Required Section -->
+                <div style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); border: 2px solid #ffc107; border-radius: 15px; padding: 25px; margin-bottom: 30px; position: relative;">
+                    <div style="position: absolute; top: -10px; left: 25px; background: #ffc107; color: #333; padding: 5px 15px; border-radius: 15px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        ⚠️ Action Required
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <h3 style="color: #856404; margin: 0 0 15px 0; font-size: 18px;">Next Steps:</h3>
+                        <ul style="color: #856404; margin: 0; padding-left: 20px; font-size: 15px;">
+                            <li style="margin-bottom: 8px;">📋 Review the application details carefully</li>
+                            <li style="margin-bottom: 8px;">📞 Contact the applicant within 24 hours</li>
+                            <li style="margin-bottom: 8px;">📄 Verify all submitted documents</li>
+                            <li style="margin-bottom: 8px;">✅ Update application status in the system</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Application Stats -->
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <div style="flex: 1; background: #e3f2fd; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #0052FE; margin-bottom: 5px;">ID</div>
+                        <div style="font-size: 14px; color: #666; font-family: monospace;">#' . str_pad($visaRequest->id ?? 'N/A', 6, '0', STR_PAD_LEFT) . '</div>
+                    </div>
+                    <div style="flex: 1; background: #f0fff4; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #28a745; margin-bottom: 5px;">Type</div>
+                        <div style="font-size: 14px; color: #666; text-transform: uppercase; font-weight: 600;">' . $visaType . '</div>
+                    </div>
+                    <div style="flex: 1; background: #fff3cd; padding: 20px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: #856404; margin-bottom: 5px;">Status</div>
+                        <div style="font-size: 14px; color: #666; font-weight: 600;">Pending Review</div>
+                    </div>
+                </div>
+                
+                <!-- Contact Information -->
+                <div style="background: #f8f9fa; border-left: 4px solid #6c757d; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+                    <h4 style="color: #495057; margin: 0 0 10px 0; font-size: 16px;">📞 Need Help?</h4>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px; line-height: 1.5;">
+                        If you need assistance with this application, contact our support team:<br>
+                        <strong>Email:</strong> team@amdglobal.de<br>
+                        <strong>Phone:</strong> +49 123 456 789<br>
+                        <strong>Hours:</strong> Mon-Fri 9AM-6PM CET
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="background: #343a40; color: white; padding: 25px 30px; text-align: center;">
+                <div style="font-size: 20px; font-weight: 700; margin-bottom: 10px; color: #17a2b8;">AMD Global</div>
+                <p style="margin: 0; font-size: 14px; opacity: 0.8; line-height: 1.5;">
+                    Your Trusted Travel Partner<br>
+                    Making travel dreams come true
+                </p>
+                <div style="margin-top: 15px; font-size: 12px; opacity: 0.6;">
+                    © ' . date('Y') . ' AMD Global. All rights reserved.
+                </div>
+            </div>
+        </div>
+        
+    </body>
+    </html>';
+}
+
+    private function sendVisaEmail_old($visaRequest, $visaType)
     {
         $visaTypeText = $visaType === 'uae' ? 'UAE VISA' : 'OTHER VISA';
         

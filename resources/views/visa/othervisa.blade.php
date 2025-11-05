@@ -671,8 +671,8 @@
                         <label for="maritalStatus" class="form-label required-field">Marital Status</label>
                         <select class="form-select" id="maritalStatus" name="marital_status" required>
                             <option value="">-Select Marital Status-</option>
-                            <option value="Married">Married</option>
-                            <option value="UnMarried">UnMarried</option>
+                            <option value="married">Married</option>
+                            <option value="single">Single</option>
                         </select>
                     </div>
                 </div>

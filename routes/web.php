@@ -5,6 +5,7 @@ use App\Http\Controllers\FlightsController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\VisaController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\ContactController;
 
 
 // Admin Login Routes
@@ -43,6 +44,9 @@ Route::get('terms_of_use', function () {
 });
 
 
+
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 // Airport search route for Select2
 Route::get('/airports/search', [FlightsController::class, 'searchAirports'])->name('airports.search');
