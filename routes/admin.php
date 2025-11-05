@@ -13,7 +13,8 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\VisaController;
-
+use App\Http\Controllers\ContactController;
+ 
 
 Route::get('/test-csrf', function() {
     return view('test-csrf');
@@ -62,6 +63,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/bulk-email', [CustomerController::class, 'bulkEmail'])->name('bulk-email');
         Route::get('/export/{format}', [CustomerController::class, 'export'])->name('export');
     });
+
+
+    // Admin Contact Messages Routes
+    Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+        Route::get('/contact-messages', [ContactController::class, 'adminIndex'])->name('contact-messages.index');
+        Route::get('/contact-messages/{id}', [ContactController::class, 'adminShow'])->name('contact-messages.show');
+        Route::patch('/contact-messages/{id}/status', [ContactController::class, 'updateStatus'])->name('contact-messages.update-status');
+        Route::delete('/contact-messages/{id}', [ContactController::class, 'destroy'])->name('contact-messages.destroy');
+    });
+
 
     // Travel Partners Management
     Route::prefix('travel-partners')->name('admin.travel-partners.')->group(function () {

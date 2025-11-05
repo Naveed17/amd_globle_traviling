@@ -46,6 +46,19 @@
             </a>
         </div>
         
+<li class="nav-item">
+    <a href="{{ route('admin.contact-messages.index') }}" class="nav-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+        <i class="bi bi-envelope"></i>
+        <span>Contact Messages</span>
+        @php
+            $newMessages = \App\Models\ContactMessage::where('status', 'new')->count();
+        @endphp
+        @if($newMessages > 0)
+            <span class="badge bg-warning text-dark ms-auto">{{ $newMessages }}</span>
+        @endif
+    </a>
+</li>
+
         <div class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle {{ request()->routeIs('admin.content*') || request()->routeIs('admin.pages*') || request()->routeIs('admin.menus*') ? 'active' : '' }}" data-bs-toggle="dropdown">
                 <i class="bi bi-file-earmark-text"></i>

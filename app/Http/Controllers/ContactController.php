@@ -394,4 +394,90 @@ class ContactController extends Controller
         </body>
         </html>';
     }
+
+
+
+
+        // Admin Methods
+    public function adminIndex(Request $request)
+    {
+        $query = ContactMessage::query()->orderBy('created_at', 'desc');
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('subject', 'like', "%{$search}%")
+                  ->orWhere('booking_ref', 'like', "%{$search}%");
+            });
+        }
+
+        // Subject Filter
+        if ($request->filled('subject')) {
+            $query->where('subject', $request->subject);
+        }
+
+        // Status Filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Date Range Filter
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $contactMessages = $query->paginate(20)->withQueryString();
+
+        // Statistics
+        $stats = [
+            'total' => ContactMessage::count(),
+            'new' => ContactMessage::where('status', 'new')->count(),
+            'read' => ContactMessage::where('status', 'read')->count(),
+            'replied' => ContactMessage::where('status', 'replied')->count(),
+        ];
+
+        return view('admin.contact-messages.index', compact('contactMessages', 'stats'));
+    }
+
+    public function adminShow($id)
+    {
+        $contactMessage = ContactMessage::findOrFail($id);
+        
+        // Mark as read if it's new
+        if ($contactMessage->status === 'new') {
+            $contactMessage->update(['status' => 'read']);
+        }
+
+        return view('admin.contact-messages.show', compact('contactMessage'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $contactMessage = ContactMessage::findOrFail($id);
+        
+        $request->validate([
+            'status' => 'required|in:new,read,replied'
+        ]);
+
+        $contactMessage->update(['status' => $request->status]);
+
+        return redirect()->back()->with('success', 'Status updated successfully!');
+    }
+
+    public function destroy($id)
+    {
+        $contactMessage = ContactMessage::findOrFail($id);
+        $contactMessage->delete();
+
+        return redirect()->route('admin.contact-messages.index')
+                        ->with('success', 'Contact message deleted successfully!');
+    }
+    
 }
