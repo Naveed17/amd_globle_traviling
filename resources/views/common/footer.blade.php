@@ -269,6 +269,7 @@
             
             <div class="footer-bottom">
                 <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved. | IATA Accredited Agent</p>
+                <p>AMD Asian-Market-Deutschland Inh. Iftikhar,Ahmed e.K.</p>
                 <p>Licensed travel agency. All bookings are financially protected. Terms & Conditions apply.</p>
             </div>
         </div>
